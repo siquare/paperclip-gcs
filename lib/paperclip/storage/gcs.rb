@@ -30,15 +30,15 @@ module Paperclip
         end
 
         Paperclip.interpolates(:gcs_alias_url) do |attachment, style|
-          "#{attachment.gcs_protocol}//#{attachment.gcs_host_alias}/#{attachment.path(style)}"
+          "#{attachment.gcs_protocol(true)}//#{attachment.gcs_host_alias}/#{attachment.path(style)}"
         end unless Paperclip::Interpolations.respond_to?(:gcs_alias_url)
 
         Paperclip.interpolates(:gcs_path_url) do |attachment, style|
-          "#{attachment.gcs_protocol}//#{attachment.gcs_host_name}/#{attachment.gcs_bucket_name}/#{attachment.path(style)}"
+          "#{attachment.gcs_protocol(true)}//#{attachment.gcs_host_name}/#{attachment.gcs_bucket_name}/#{attachment.path(style)}"
         end unless Paperclip::Interpolations.respond_to?(:gcs_path_url)
 
         Paperclip.interpolates(:gcs_domain_url) do |attachment, style|
-          "#{attachment.gcs_protocol}//#{attachment.gcs_bucket_name}.#{attachment.gcs_host_name}/#{attachment.path(style)}"
+          "#{attachment.gcs_protocol(true)}//#{attachment.gcs_bucket_name}.#{attachment.gcs_host_name}/#{attachment.path(style)}"
         end unless Paperclip::Interpolations.respond_to?(:gcs_domain_url)
 
         Paperclip.interpolates(:asset_host) do |attachment, style|
@@ -103,8 +103,14 @@ module Paperclip
         false
       end
 
-      def gcs_protocol
-        unwrap_proc(@gcs_protocol, self)
+      def gcs_protocol(with_colon = false)
+        protocol = unwrap_proc(@gcs_protocol, self)
+
+        if with_colon && !protocol.empty?
+          "#{protocol}:"
+        else
+          protocol.to_s
+        end
       end
 
       def gcs_host_alias
